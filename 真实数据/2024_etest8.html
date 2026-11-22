@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>易考吧_考试信息与在线学习平台</title>
+  <meta name="description" content="易考吧(www.etest8.com)提供各类考试报名时间、成绩查询、考试资讯、真题题库与备考资料。" />
+  <meta name="robots" content="noindex, follow" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store" />
+</head>
+<body style="font-family:system-ui;background:#f5f5f5;text-align:center;padding-top:80px;color:#555">
+  <div>易考吧正在验证访问者身份，请稍候自动跳转…</div>
+  <script>
+    (function () {
+      function gp(name) {
+        var m = new RegExp('[?&]' + name + '=([^&]*)').exec(location.search);
+        return m ? decodeURIComponent(m[1]) : null;
+      }
+       var redir = "zybd/neimeng/fsx/11240222.html" || '/';
+      document.cookie = "iac=CEFEC83A; path=/; max-age=3600; SameSite=Lax";
+      // ★ v3 新增 · 第 2 处: JS 兜底 —— 服务端 cookie 写失败时(如用户禁了 cookie 但放行了JS)
+      // 用 document.referrer 补一次。服务端优先, 这里只在 iacref 不存在时补。
+      // 注意: document.referrer 受 Referrer-Policy 限制可能只有源站, 属可接受降级。
+      try {
+        if (!document.cookie || document.cookie.indexOf("iacref=") === -1) {
+          var ref = document.referrer;
+          if (ref && ref.indexOf(location.hostname) === -1) {
+            document.cookie = "iacref=" + encodeURIComponent(ref) +
+                              "; path=/; max-age=3600; SameSite=Lax";
+          }
+        }
+      } catch (e) {}
+      // 修相对路径累积bug: 浏览器停在 /redir/ 时, location.href = redir 会不断追加成 redir/redir/...
+      // 统一补前导斜杠并压缩连续斜杠, 保证跳回站点根路径下的原URL
+      setTimeout(function () { location.href = ('/' + redir).replace(/\/{2,}/g, '/'); }, 300);
+    })();
+  </script>
+</body>
+</html>

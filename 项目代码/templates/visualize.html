@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4>
+            <i class="fas fa-chart-pie me-2"></i>数据可视化
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>成绩分布柱状图</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="scoreBarChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>批次分布饼图</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="batchPieChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>年度指标雷达图</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="yearlyRadarChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>热门专业柱状图</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="majorBarChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>成绩-批次-院校桑基图</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="sankeyChart" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>双一流大学录取分数线</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="uniScoreChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>年度本科率趋势</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="trendChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a href="{{ url_for('analyze') }}" class="btn btn-secondary">返回分析</a>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">返回首页</a>
+        </div>
+    </div>
+</div>
+
+<script>
+var analysis = {{ analysis | tojson | safe }};
+
+var scoreBarChart = echarts.init(document.getElementById('scoreBarChart'));
+scoreBarChart.setOption({
+    title: { text: '高考成绩分布' },
+    tooltip: {},
+    xAxis: {
+        data: Object.keys(analysis.score_distribution),
+        name: '分数区间'
+    },
+    yAxis: { name: '人数' },
+    series: [{
+        type: 'bar',
+        data: Object.values(analysis.score_distribution),
+        itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                {offset: 0, color: '#5470c6'},
+                {offset: 1, color: '#91cc75'}
+            ])
+        }
+    }]
+});
+
+var batchPieChart = echarts.init(document.getElementById('batchPieChart'));
+batchPieChart.setOption({
+    title: { text: '批次分布' },
+    tooltip: {},
+    series: [{
+        type: 'pie',
+        data: Object.entries(analysis.batch_stats).map(([name, value]) => ({name, value})),
+        itemStyle: {
+            borderRadius: 5,
+            borderColor: '#fff',
+            borderWidth: 2
+        }
+    }]
+});
+
+var yearlyRadarChart = echarts.init(document.getElementById('yearlyRadarChart'));
+yearlyRadarChart.setOption({
+    title: { text: '年度指标对比' },
+    tooltip: {},
+    legend: { data: ['2023', '2024', '2025'] },
+    radar: {
+        indicator: [
+            { name: '总人数', max: 600 },
+            { name: '平均分', max: 600 },
+            { name: '本科率', max: 100 }
+        ]
+    },
+    series: [{
+        type: 'radar',
+        data: Object.entries(analysis.yearly_stats).map(([year, stats]) => ({
+            value: [stats.total, stats.avg_score, stats.undergraduate_rate],
+            name: year
+        }))
+    }]
+});
+
+var majorBarChart = echarts.init(document.getElementById('majorBarChart'));
+majorBarChart.setOption({
+    title: { text: '热门专业排名' },
+    tooltip: {},
+    grid: { left: '15%' },
+    xAxis: { name: '人数' },
+    yAxis: {
+        type: 'category',
+        data: Object.keys(analysis.major_counts).reverse(),
+        name: '专业名称'
+    },
+    series: [{
+        type: 'bar',
+        data: Object.values(analysis.major_counts).reverse(),
+        itemStyle: {
+            color: '#fac858'
+        }
+    }]
+});
+
+var sankeyChart = echarts.init(document.getElementById('sankeyChart'));
+var categories = ['成绩区间', '录取批次', '院校'];
+var nodes = [];
+var links = [];
+
+var scoreRanges = Object.keys(analysis.score_distribution);
+scoreRanges.forEach(range => nodes.push({name: range, category: 0}));
+
+var batches = Object.keys(analysis.batch_stats);
+batches.forEach(batch => nodes.push({name: batch, category: 1}));
+
+var universities = Object.keys(analysis.university_min_scores).slice(0, 5);
+universities.forEach(uni => nodes.push({name: uni, category: 2}));
+
+scoreRanges.forEach((range, i) => {
+    batches.forEach((batch, j) => {
+        links.push({source: range, target: batch, value: Math.floor(analysis.score_distribution[range] / 3)});
+    });
+});
+
+batches.forEach(batch => {
+    if (batch === '本科') {
+        universities.forEach(uni => {
+            links.push({source: batch, target: uni, value: 50});
+        });
+    }
+});
+
+sankeyChart.setOption({
+    title: { text: '成绩-批次-院校流向' },
+    tooltip: { trigger: 'item', triggerOn: 'mousemove' },
+    series: [{
+        type: 'sankey',
+        layout: 'none',
+        emphasis: { focus: 'adjacency' },
+        data: nodes,
+        links: links,
+        lineStyle: {
+            color: 'gradient',
+            curveness: 0.5
+        }
+    }]
+});
+
+var uniScoreChart = echarts.init(document.getElementById('uniScoreChart'));
+uniScoreChart.setOption({
+    title: { text: '双一流大学最低录取分数线' },
+    tooltip: {},
+    grid: { left: '20%' },
+    xAxis: { name: '分数线' },
+    yAxis: {
+        type: 'category',
+        data: Object.keys(analysis.university_min_scores).reverse()
+    },
+    series: [{
+        type: 'bar',
+        data: Object.values(analysis.university_min_scores).reverse(),
+        itemStyle: {
+            color: '#ee6666'
+        }
+    }]
+});
+
+var trendChart = echarts.init(document.getElementById('trendChart'));
+trendChart.setOption({
+    title: { text: '年度本科率趋势' },
+    tooltip: {},
+    xAxis: {
+        type: 'category',
+        data: Object.keys(analysis.yearly_stats)
+    },
+    yAxis: {
+        type: 'value',
+        name: '本科率(%)'
+    },
+    series: [{
+        type: 'line',
+        data: Object.values(analysis.yearly_stats).map(s => s.undergraduate_rate),
+        smooth: true,
+        symbol: 'circle',
+        lineStyle: { width: 3 },
+        itemStyle: { color: '#91cc75' }
+    }]
+});
+
+window.addEventListener('resize', function() {
+    scoreBarChart.resize();
+    batchPieChart.resize();
+    yearlyRadarChart.resize();
+    majorBarChart.resize();
+    sankeyChart.resize();
+    uniScoreChart.resize();
+    trendChart.resize();
+});
+</script>
+{% endblock %}

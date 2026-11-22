@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">欢迎使用高考数据分析系统</h1>
+    <p class="lead">全方位分析内蒙古自治区高考数据，洞察教育趋势</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card stats-card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-chart-bar fa-lg me-2"></i>数据概览
+                </h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-database"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value">{{ raw_count }}</div>
+                                <div class="stat-label">原始数据量</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-filter"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value">{{ cleaned_count }}</div>
+                                <div class="stat-label">清洗后数据量</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value">3年</div>
+                                <div class="stat-label">数据跨度</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-university"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value">10+</div>
+                                <div class="stat-label">双一流院校</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-book-open fa-lg me-2"></i>热门专业 Top 5
+                </h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-star text-warning"></i> 计算机科学与技术</span>
+                        <span class="badge bg-primary">1258</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-star text-warning"></i> 金融学</span>
+                        <span class="badge bg-primary">986</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-star text-warning"></i> 临床医学</span>
+                        <span class="badge bg-primary">845</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-star text-warning"></i> 电子信息工程</span>
+                        <span class="badge bg-primary">756</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-star text-warning"></i> 会计学</span>
+                        <span class="badge bg-primary">689</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card function-card">
+            <div class="card-body text-center">
+                <div class="function-icon">
+                    <i class="fas fa-download fa-4x"></i>
+                </div>
+                <h5 class="card-title mt-3">数据采集</h5>
+                <p class="card-text">从数据源获取高考成绩数据</p>
+                <a href="{{ url_for('collect') }}" class="btn btn-primary mt-2">开始采集</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card function-card">
+            <div class="card-body text-center">
+                <div class="function-icon">
+                    <i class="fas fa-filter fa-4x"></i>
+                </div>
+                <h5 class="card-title mt-3">数据清洗</h5>
+                <p class="card-text">去重、去空、过滤异常值和违禁词</p>
+                <a href="{{ url_for('clean') }}" class="btn btn-primary mt-2">开始清洗</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card function-card">
+            <div class="card-body text-center">
+                <div class="function-icon">
+                    <i class="fas fa-brain fa-4x"></i>
+                </div>
+                <h5 class="card-title mt-3">数据分析</h5>
+                <p class="card-text">分析成绩分布、录取率和热门专业</p>
+                <a href="{{ url_for('analyze') }}" class="btn btn-primary mt-2">开始分析</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card function-card">
+            <div class="card-body text-center">
+                <div class="function-icon">
+                    <i class="fas fa-chart-pie fa-4x"></i>
+                </div>
+                <h5 class="card-title mt-3">数据可视化</h5>
+                <p class="card-text">雷达图、桑基图等多种图表展示</p>
+                <a href="{{ url_for('visualize') }}" class="btn btn-primary mt-2">查看可视化</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

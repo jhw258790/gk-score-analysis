@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4>
+            <i class="fas fa-filter me-2"></i>数据清洗结果
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <div class="display-4 text-primary">{{ original_count }}</div>
+                        <div class="card-title">原始数据量</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <div class="display-4 text-success">{{ cleaned_count }}</div>
+                        <div class="card-title">清洗后数据量</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h5>清洗步骤</h5>
+            <div class="list-group">
+                <div class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>去重处理</strong>：移除重复记录
+                </div>
+                <div class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>去空处理</strong>：移除关键字段为空的记录
+                </div>
+                <div class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>异常值处理</strong>：移除成绩不在0-750区间的记录
+                </div>
+                <div class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>违禁词过滤</strong>：过滤包含违禁词的记录
+                </div>
+            </div>
+        </div>
+
+        {% if cleaned_count > 0 %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>年份</th>
+                        <th>成绩</th>
+                        <th>批次</th>
+                        <th>专业</th>
+                        <th>院校</th>
+                        <th>民族</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data[:50] %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.year }}</td>
+                        <td>{{ item.score }}</td>
+                        <td>
+                            {% if item.batch == '本科' %}
+                            <span class="badge bg-success">{{ item.batch }}</span>
+                            {% elif item.batch == '专科' %}
+                            <span class="badge bg-warning">{{ item.batch }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ item.batch }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.major }}</td>
+                        <td>{{ item.university if item.university else '-' }}</td>
+                        <td>{{ item.ethnic }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if data|length > 50 %}
+        <p class="text-center text-muted">仅显示前50条记录，共{{ data|length }}条</p>
+        {% endif %}
+        {% endif %}
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a href="{{ url_for('collect') }}" class="btn btn-secondary">返回采集</a>
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary">进行数据分析</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

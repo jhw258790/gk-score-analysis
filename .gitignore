@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# IDE
+.idea/
+
+# 运行产物与本地账号数据（含密码哈希，绝不提交）
+# 无斜杠的规则在任意层级都生效
+*.json
+
+# 由 build_load.py 重新生成的入库脚本
+load_gk.sql
+
+# 课程实验报告（体积大，课程材料）
+*.docx
+
+# 采集失败/无表格的页面（仅本地留档）
+2024_etest8.html
+2024_gmw.html

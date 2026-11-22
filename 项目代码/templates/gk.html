@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}SQL 分析（真实数据）{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-1"><i class="fas fa-database me-2"></i>内蒙古高考一分一段 · SQL 分析</h2>
+    <p class="text-muted">
+        数据来源：内蒙古自治区教育厅 / 通辽市教育局 / 阳光高考公开一分一段表；
+        共 <strong>{{ summary.n }}</strong> 条分数段记录，覆盖
+        <strong>{{ summary.y1 }}–{{ summary.y2 }}</strong> 年。
+    </p>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center"><div class="card-body">
+                <div class="display-6">{{ summary.n }}</div>
+                <div class="text-muted">分数段记录</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center"><div class="card-body">
+                <div class="display-6">{{ scale|length }}</div>
+                <div class="text-muted">年度×科类</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center"><div class="card-body">
+                <div class="display-6">{{ ratio600|map(attribute='pct')|max }}%</div>
+                <div class="text-muted">600 分以上最高占比</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center"><div class="card-body">
+                <div class="display-6">{{ scale|map(attribute='total_exam')|max }}</div>
+                <div class="text-muted">单科类最大考生数</div>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">各年各科类 600 分以上占比（%）</div>
+        <div class="card-body"><div id="ratioChart" style="height:360px;"></div></div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">2025 物理类 · 分数段人数分布</div>
+        <div class="card-body"><div id="distChart" style="height:360px;"></div></div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">各年各科类考生规模</div>
+        <div class="card-body table-responsive">
+            <table class="table table-sm table-striped">
+                <thead><tr><th>年份</th><th>科类</th><th>分数区间</th><th>分数档数</th><th>考生数</th></tr></thead>
+                <tbody>
+                {% for r in scale %}
+                    <tr>
+                        <td>{{ r.year }}</td><td>{{ r.category }}</td>
+                        <td>{{ r.min_score }}–{{ r.max_score }}</td>
+                        <td>{{ r.bands }}</td><td>{{ r.total_exam }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">600 分以上人数与占比</div>
+        <div class="card-body table-responsive">
+            <table class="table table-sm table-striped">
+                <thead><tr><th>年份</th><th>科类</th><th>600+ 人数</th><th>考生数</th><th>占比</th></tr></thead>
+                <tbody>
+                {% for r in ratio600 %}
+                    <tr>
+                        <td>{{ r.year }}</td><td>{{ r.category }}</td>
+                        <td>{{ r.above_600 }}</td><td>{{ r.total_exam }}</td><td>{{ r.pct }}%</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">竞争最激烈的分数段（本段人数最多）</div>
+        <div class="card-body table-responsive">
+            <table class="table table-sm table-striped">
+                <thead><tr><th>年份</th><th>科类</th><th>分数</th><th>本段人数</th></tr></thead>
+                <tbody>
+                {% for r in hot %}
+                    <tr><td>{{ r.year }}</td><td>{{ r.category }}</td><td>{{ r.score }}</td><td>{{ r.band_count }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+const ratio = {{ ratio600|tojson }};
+const dist = {{ dist|tojson }};
+
+const rc = echarts.init(document.getElementById('ratioChart'));
+rc.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: 50, right: 20, top: 30, bottom: 40 },
+    xAxis: { type: 'category', data: ratio.map(r => r.year + ' ' + r.category), axisLabel: { rotate: 35 } },
+    yAxis: { type: 'value', name: '占比 %' },
+    series: [{
+        type: 'bar',
+        data: ratio.map(r => r.pct),
+        label: { show: true, position: 'top', formatter: '{c}%' },
+        itemStyle: { color: '#2c7be5' }
+    }]
+});
+
+const dc = echarts.init(document.getElementById('distChart'));
+dc.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: 60, right: 20, top: 30, bottom: 40 },
+    xAxis: { type: 'category', data: dist.map(r => r.band_start + '-' + (r.band_start + 49)) },
+    yAxis: { type: 'value', name: '人数' },
+    series: [{ type: 'bar', data: dist.map(r => r.students), itemStyle: { color: '#e6a23c' } }]
+});
+
+window.addEventListener('resize', () => { rc.resize(); dc.resize(); });
+</script>
+{% endblock %}

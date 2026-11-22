@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4>
+            <i class="fas fa-brain me-2"></i>数据分析结果
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-gradient-primary text-white">
+                    <div class="card-body text-center">
+                        <div class="display-4">{{ analysis.total_students }}</div>
+                        <div class="card-title">总考生数</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-gradient-success text-white">
+                    <div class="card-body text-center">
+                        <div class="display-4">{{ analysis.undergraduate_rate }}%</div>
+                        <div class="card-title">本科上线率</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-gradient-warning text-white">
+                    <div class="card-body text-center">
+                        <div class="display-4">{{ analysis.batch_stats.get('专科', 0) }}</div>
+                        <div class="card-title">专科上线数</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-gradient-secondary text-white">
+                    <div class="card-body text-center">
+                        <div class="display-4">{{ analysis.batch_stats.get('未上线', 0) }}</div>
+                        <div class="card-title">未上线数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>成绩分布区间</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for range, count in analysis.score_distribution.items() %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ range }}分</span>
+                                <span class="badge bg-primary">{{ count }}人</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>热门专业 Top 10</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for major, count in analysis.major_counts.items() %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ major }}</span>
+                                <span class="badge bg-success">{{ count }}人</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>双一流大学录取最低分</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for university, score in analysis.university_min_scores.items() %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ university }}</span>
+                                <span class="badge bg-danger">{{ score }}分</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>年度统计</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>年份</th>
+                                    <th>总人数</th>
+                                    <th>平均分</th>
+                                    <th>本科率</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for year, stats in analysis.yearly_stats.items() %}
+                                <tr>
+                                    <td>{{ year }}</td>
+                                    <td>{{ stats.total }}</td>
+                                    <td>{{ stats.avg_score }}</td>
+                                    <td>{{ stats.undergraduate_rate }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a href="{{ url_for('clean') }}" class="btn btn-secondary">返回清洗</a>
+            <a href="{{ url_for('visualize') }}" class="btn btn-primary">查看数据可视化</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

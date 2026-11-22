@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4>
+            <i class="fas fa-download me-2"></i>数据采集结果
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle me-2"></i>
+            数据来源：{{ source }}
+            <span class="badge bg-secondary float-end">{{ data|length }} 条记录</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>年份</th>
+                        <th>成绩</th>
+                        <th>批次</th>
+                        <th>专业</th>
+                        <th>院校</th>
+                        <th>民族</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data[:50] %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.year }}</td>
+                        <td>{{ item.score }}</td>
+                        <td>
+                            {% if item.batch == '本科' %}
+                            <span class="badge bg-success">{{ item.batch }}</span>
+                            {% elif item.batch == '专科' %}
+                            <span class="badge bg-warning">{{ item.batch }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ item.batch }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.major }}</td>
+                        <td>{{ item.university if item.university else '-' }}</td>
+                        <td>{{ item.ethnic }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if data|length > 50 %}
+        <p class="text-center text-muted">仅显示前50条记录，共{{ data|length }}条</p>
+        {% endif %}
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">返回首页</a>
+            <a href="{{ url_for('clean') }}" class="btn btn-primary">进行数据清洗</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
